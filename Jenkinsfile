@@ -5,7 +5,7 @@ pipeline {
         RT_URL = 'http://artifactory-unified.soleng-us.jfrog.team/artifactory'
         TOKEN = credentials('art_token')
         ARTIFACTORY_LOCAL_DEV_REPO = 'soldocker-demo-dev'
-        ARTIFACTORY_DOCKER_REGISTRY = 'artifactory-unified.soleng-us.jfrog.team/soldocker-demo-dev/'
+        ARTIFACTORY_DOCKER_REGISTRY = 'artifactory-unified.soleng-us.jfrog.team/soldocker-demo-dev'
         DOCKER_REPOSITORY = 'soldocker-demo-dev'
         IMAGE_NAME = 'sol_docker_demo'
         IMAGE_VERSION = '1.0.0'
