@@ -50,13 +50,13 @@ pipeline {
                 dir('complete') {
                 //Before creating the docker image, we need to create the .jar file
                     sh 'jf mvnc'
-                    sh 'jf mvn package target -DskipTests -Dcheckstyle.skip'
-                    //sh "./mvnw package"
+                   // sh 'jf mvn package target -DskipTests -Dcheckstyle.skip'
+                    sh "./mvnw package"
                     echo 'Create the Docker image'
-                    //sh "docker build -t build_promotion ."
-                    script {
-                        docker.build(ARTIFACTORY_DOCKER_REGISTRY+'/'+IMAGE_NAME+':'+IMAGE_VERSION, '--build-arg JAR_FILE=target/*.jar .')
-                    }
+                    sh "docker build -t build_promotion ."
+                  //  script {
+                 //       docker.build(ARTIFACTORY_DOCKER_REGISTRY+'/'+IMAGE_NAME+':'+IMAGE_VERSION, '--build-arg JAR_FILE=target/*.jar .')
+                  //  }
                 }
             }
         }
