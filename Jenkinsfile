@@ -5,6 +5,10 @@ pipeline {
         RT_URL = 'http://artifactory-unified.soleng-us.jfrog.team/artifactory'
         TOKEN = credentials('art_token')
         ARTIFACTORY_LOCAL_DEV_REPO = 'soldocker-demo-dev'
+        ARTIFACTORY_DOCKER_REGISTRY = 'artifactory-unified.soleng-us.jfrog.team/soldocker-demo-dev/'
+        DOCKER_REPOSITORY = 'soldocker-demo-dev'
+        IMAGE_NAME = 'sol_docker_demo'
+        IMAGE_VERSION = '1.0.0'
         SERVER_ID = 'k8s'
         BUILD_NAME = "SolDemo_docker_maven"
     }
@@ -41,14 +45,32 @@ pipeline {
                // }
             }
         }
-        stage ('Upload artifact') {
+        stage('Package') {
             steps {
-               // dir('complete') {
-                    sh 'jf mvnc'
-                    sh 'jf mvn clean deploy complete/ -Dcheckstyle.skip -DskipTests --build-name="${BUILD_NAME}" --build-number=${BUILD_ID}'
+                //dir('complete') {
+                //Before creating the docker image, we need to create the .jar file
+                    sh 'jf mvn package complete/ -DskipTests -Dcheckstyle.skip'
+                    echo 'Create the Docker image'
+                    //sh "docker build -t build_promotion ."
+                    script {
+                        docker.build(ARTIFACTORY_DOCKER_REGISTRY+'/'+IMAGE_NAME+':'+IMAGE_VERSION, '--build-arg JAR_FILE=target/*.jar .')
+                    }
                // }
             }
         }
+        stage ('Push image to Artifactory') {
+            steps {
+                sh 'jf rt docker-push ${ARTIFACTORY_DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION} ${DOCKER_REPOSITORY} --build-name="${BUILD_NAME}" --build-number=${BUILD_ID} --url ${RT_URL} --access-token ${TOKEN}'
+            }
+        }
+        //stage ('Upload artifact') {
+           // steps {
+               // dir('complete') {
+            //        sh 'jf mvnc'
+            //        sh 'jf mvn clean deploy complete/ -Dcheckstyle.skip -DskipTests --build-name="${BUILD_NAME}" --build-number=${BUILD_ID}'
+               // }
+          //  }
+      //  }
         stage ('Publish build info') {
             steps {
                 // Collect environment variables for the build
