@@ -53,10 +53,10 @@ pipeline {
                    // sh 'jf mvn package target -DskipTests -Dcheckstyle.skip'
                     sh "./mvnw package"
                     echo 'Create the Docker image'
-                    sh "docker build -t build_promotion ."
-                  //  script {
-                 //       docker.build(ARTIFACTORY_DOCKER_REGISTRY+'/'+IMAGE_NAME+':'+IMAGE_VERSION, '--build-arg JAR_FILE=target/*.jar .')
-                  //  }
+                   // sh "docker build -t build_promotion ."
+                    script {
+                        docker.build(ARTIFACTORY_DOCKER_REGISTRY+'/'+IMAGE_NAME+':'+IMAGE_VERSION, '--build-arg JAR_FILE=target/*.jar .')
+                    }
                 }
             }
         }
