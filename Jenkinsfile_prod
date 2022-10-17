@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+    environment {
+        JURL = 'http://artifactory-unified.soleng-us.jfrog.team/'
+        RT_URL = 'http://artifactory-unified.soleng-us.jfrog.team/artifactory'
+        TOKEN = credentials('art_token')
+        ARTIFACTORY_LOCAL_STAGING_REPO = 'soldocker-demo-staging'
+        ARTIFACTORY_LOCAL_PRODUCTION_REPO = 'soldocker-demo-prod'
+        
+        SERVER_ID = 'k8s'
+    }
+    tools {
+        maven "maven-3.6.3"
+    }
+
+    stages {
+        stage ('Config JFrgo CLI') {
+            steps {
+                sh 'jf c add ${SERVER_ID} --interactive=false --overwrite=true --access-token=${TOKEN} --url=${JURL}'
+                sh 'jf config use ${SERVER_ID}'
+            }
+        }
+        stage ('Ping to Artifactory') {
+            steps {
+               sh 'jf rt ping'
+            }
+        }
+        stage ('Scan build') {
+            steps {
+                sh 'JFROG_CLI_LOG_LEVEL=DEBUG jf rt bs "${BUILD_TO_PROMO_NAME}" ${BUILD_TO_PROMO_ID}'
+            }
+        }
+        stage ('Approve Release for Production') {
+            options {
+                timeout(time: 5, unit: 'MINUTES')
+            }
+            steps {
+                input message: "Are we good to go to Production?"
+            }
+        }
+        stage ('Promote build to production') {
+            steps {
+                //Promote the build
+                sh 'jf rt bpr --source-repo=${ARTIFACTORY_LOCAL_STAGING_REPO} --status=Production --props="status=Production" "${BUILD_TO_PROMO_NAME}" ${BUILD_TO_PROMO_ID} ${ARTIFACTORY_LOCAL_PRODUCTION_REPO}'
+            }
+        }
+    }
+}
