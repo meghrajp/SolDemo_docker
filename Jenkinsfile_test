@@ -27,7 +27,7 @@ pipeline {
         }
         stage ('Scan build') {
             steps {
-                sh 'JFROG_CLI_LOG_LEVEL=DEBUG jf rt bs --fail=false "${BUILDTOPROMO_NAME}" ${BUILDTOPROMO_ID}'
+                sh 'JFROG_CLI_LOG_LEVEL=DEBUG jf rt bs --fail=false "${BUILD_TO_PROMO_NAME}" ${BUILD_TO_PROMO_ID}'
             }
         }
         stage ('Approve Release for Test') {
@@ -41,7 +41,7 @@ pipeline {
         stage ('Promote build to test') {
             steps {
                 //Promote the build
-                sh 'jf rt bpr --source-repo=${ARTIFACTORY_LOCAL_DEV_REPO} --status=Test --props="status=Test" "${BUILDTOPROMO_NAME}" ${BUILDTOPROMO_ID} ${ARTIFACTORY_LOCAL_TEST_REPO}'
+                sh 'jf rt bpr --source-repo=${ARTIFACTORY_LOCAL_DEV_REPO} --status=Test --props="status=Test" "${BUILD_TO_PROMO_NAME}" ${BUILD_TO_PROMO_ID} ${ARTIFACTORY_LOCAL_TEST_REPO}'
             }
         }
     }
