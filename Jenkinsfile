@@ -54,12 +54,13 @@ pipeline {
                   //  sh "./mvnw package"
                     echo 'Create the Docker image'
                    // sh "docker build -t build_promotion ."
-//                     script {
-//                         docker.build(ARTIFACTORY_DOCKER_REGISTRY+'/'+IMAGE_NAME+':'+IMAGE_VERSION, '--build-arg JAR_FILE=target/*.jar .')
-//                     }
+                    script {
+                        docker.build(ARTIFACTORY_DOCKER_REGISTRY+'/'+IMAGE_NAME+':'+IMAGE_VERSION, '--build-arg JAR_FILE=target/*.jar ../.')
+                    }
                 }
             }
         }
+        
 //         stage ('Push image to Artifactory') {
 //             steps {
 //                 sh 'jf rt docker-push ${ARTIFACTORY_DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION} ${DOCKER_REPOSITORY} --build-name="${BUILD_NAME}" --build-number=${BUILD_ID} --url ${RT_URL} --access-token ${TOKEN}'
