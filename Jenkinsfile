@@ -47,15 +47,15 @@ pipeline {
         }
         stage('Package') {
             steps {
-                //dir('complete') {
+                dir('complete') {
                 //Before creating the docker image, we need to create the .jar file
-                    sh 'jf mvn package complete/ -DskipTests -Dcheckstyle.skip'
+                    sh 'jf mvn package target -DskipTests -Dcheckstyle.skip'
                     echo 'Create the Docker image'
                     //sh "docker build -t build_promotion ."
                     script {
                         docker.build(ARTIFACTORY_DOCKER_REGISTRY+'/'+IMAGE_NAME+':'+IMAGE_VERSION, '--build-arg JAR_FILE=target/*.jar .')
                     }
-               // }
+                }
             }
         }
         stage ('Push image to Artifactory') {
