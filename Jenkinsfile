@@ -1,32 +1,21 @@
 pipeline {
     agent any
     environment {
-        JURL = 'http://10.186.0.21'
-        RT_URL = 'http://10.186.0.21/artifactory'
-        TOKEN = credentials('token')
-        CREDENTIALS = 'Artifactoryk8s'
+        JURL = 'http://artifactory-unified.soleng-us.jfrog.team/'
+        RT_URL = 'http://artifactory-unified.soleng-us.jfrog.team/artifactory'
+        TOKEN = credentials('art_token')
+        ARTIFACTORY_LOCAL_DEV_REPO = 'soldocker-demo-dev'
         SERVER_ID = 'k8s'
-        ARTIFACTORY_DOCKER_REGISTRY = '10.186.0.21/demo-docker-local'
-        DOCKER_REPOSITORY = 'demo-docker-local'
-        IMAGE_NAME = 'gs-spring-boot'
-        IMAGE_VERSION = '1.0.0'
-        BUILD_NAME = 'GS_SPRING_BOOT_docker'
+        BUILD_NAME = "SolDemo_docker_maven"
     }
     tools {
         maven "maven-3.6.3"
     }
+ 
     stages {
-        stage ('Artifactory configuration') {
-            steps {
-                rtServer (
-                    id: SERVER_ID,
-                    url: RT_URL,
-                    credentialsId: CREDENTIALS
-                )
-            }
-        }
         stage ('Config JFrgo CLI') {
             steps {
+                
                 sh 'jf c add ${SERVER_ID} --interactive=false --overwrite=true --access-token=${TOKEN} --url=${JURL}'
                 sh 'jf config use ${SERVER_ID}'
             }
@@ -39,33 +28,24 @@ pipeline {
         stage ('Config Maven'){
             steps {
                 dir('complete'){
-                    sh 'jf mvnc --repo-resolve-releases=demo-maven-virtual --repo-resolve-snapshots=demo-maven-virtual --repo-deploy-releases=demo-maven-virtual --repo-deploy-snapshots=demo-maven-virtual'
+                    sh 'jf mvnc --repo-resolve-releases=soldocker-demo-virtual --repo-resolve-snapshots=soldocker-demo-virtual --repo-deploy-releases=soldocker-demo-virtual --repo-deploy-snapshots=soldocker-demo-virtual'
                 }
             }
         }
         stage('Compile') {
             steps {
                 echo 'Compiling'
-                dir('complete') {
-                    sh 'jf mvn clean test-compile -Dcheckstyle.skip -DskipTests'
-                }
+                //dir('complete') {
+                    sh 'jf mvnc'
+                    sh 'jf mvn clean install -f complete/ -Dcheckstyle.skip -DskipTests'
+               // }
             }
         }
-        stage('Package') {
+        stage ('Upload artifact') {
             steps {
                 dir('complete') {
-                //Before creating the docker image, we need to create the .jar file
-                    sh 'jf mvn package spring-boot:repackage -DskipTests -Dcheckstyle.skip'
-                    echo 'Create the Docker image'
-                    script {
-                        docker.build(ARTIFACTORY_DOCKER_REGISTRY+'/'+IMAGE_NAME+':'+IMAGE_VERSION, '--build-arg JAR_FILE=target/*.jar .')
-                    }
+                    sh 'jf mvn clean deploy -Dcheckstyle.skip -DskipTests --build-name="${BUILD_NAME}" --build-number=${BUILD_ID}'
                 }
-            }
-        }
-        stage ('Push image to Artifactory') {
-            steps {
-                sh 'jf rt docker-push ${ARTIFACTORY_DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION} ${DOCKER_REPOSITORY} --build-name="${BUILD_NAME}" --build-number=${BUILD_ID} --url ${RT_URL} --access-token ${TOKEN}'
             }
         }
         stage ('Publish build info') {
@@ -75,14 +55,9 @@ pipeline {
                 //Collect VCS details from git and add them to the build
                 sh 'jf rt bag "${BUILD_NAME}" ${BUILD_ID}'
                 //Publish build info
-                sh 'JFROG_CLI_LOG_LEVEL=DEBUG jf rt bp "${BUILD_NAME}" ${BUILD_ID} --build-url=${BUILD_URL}'
+                sh 'jf rt bp "${BUILD_NAME}" ${BUILD_ID} --build-url=${BUILD_URL}'
                 //Promote the build
-                //sh 'JFROG_CLI_LOG_LEVEL=DEBUG jf rt bpr --status=Development --props="status=Development" "${BUILD_NAME}" ${BUILD_ID} ${DOCKER_REPOSITORY}'
-            }
-        }
-        stage ('Scan build') {
-            steps {
-                sh 'JFROG_CLI_LOG_LEVEL=DEBUG jf rt bs "${BUILD_NAME}" ${BUILD_ID}'
+                sh 'jf rt bpr --status=Development --props="status=Development" "${BUILD_NAME}" ${BUILD_ID} ${ARTIFACTORY_LOCAL_DEV_REPO}'
             }
         }
     }
