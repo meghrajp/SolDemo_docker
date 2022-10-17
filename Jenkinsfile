@@ -65,7 +65,7 @@ pipeline {
             steps {
                 sh 'export DOCKER_OPTS+=" --insecure-registry soldocker-demo-dev.artifactory-unified.soleng-us.jfrog.team"'
                // sh 'docker login -u admin -p JFr0g0601 soldocker-demo-dev.artifactory-unified.soleng-us.jfrog.team'
-                sh 'jf rt docker-push ${ARTIFACTORY_DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION} ${DOCKER_REPOSITORY} --build-name="${BUILD_NAME}" --build-number=${BUILD_ID} --url "soldocker-demo-dev.artifactory-unified.soleng-us.jfrog.team" --access-token ${TOKEN}'
+                sh 'jf rt docker-push ${ARTIFACTORY_DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION} ${DOCKER_REPOSITORY} --build-name="${BUILD_NAME}" --build-number=${BUILD_ID} --url "https://artifactory-unified.soleng-us.jfrog.team" --access-token ${TOKEN}'
             }
         }
       
