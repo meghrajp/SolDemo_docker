@@ -43,9 +43,10 @@ pipeline {
         }
         stage ('Upload artifact') {
             steps {
-                dir('complete') {
-                    sh 'jf mvn clean deploy -Dcheckstyle.skip -DskipTests --build-name="${BUILD_NAME}" --build-number=${BUILD_ID}'
-                }
+               // dir('complete') {
+                    sh 'jf mvnc'
+                    sh 'jf mvn clean deploy complete/ -Dcheckstyle.skip -DskipTests --build-name="${BUILD_NAME}" --build-number=${BUILD_ID}'
+               // }
             }
         }
         stage ('Publish build info') {
