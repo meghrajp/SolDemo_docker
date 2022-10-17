@@ -39,32 +39,32 @@ pipeline {
         stage('Compile') {
             steps {
                 echo 'Compiling'
-                //dir('complete') {
-                    sh 'jf mvnc'
-                    sh 'jf mvn clean install -f complete/ -Dcheckstyle.skip -DskipTests'
-               // }
-            }
-        }
-        stage('Package') {
-            steps {
                 dir('complete') {
-                //Before creating the docker image, we need to create the .jar file
-                    sh 'jf mvnc'
-                   // sh 'jf mvn package target -DskipTests -Dcheckstyle.skip'
-                    sh "./mvnw package"
-                    echo 'Create the Docker image'
-                   // sh "docker build -t build_promotion ."
-                    script {
-                        docker.build(ARTIFACTORY_DOCKER_REGISTRY+'/'+IMAGE_NAME+':'+IMAGE_VERSION, '--build-arg JAR_FILE=target/*.jar .')
-                    }
+                    //sh 'jf mvnc'
+                    sh 'jf mvn clean test_compile -Dcheckstyle.skip -DskipTests'
                 }
             }
         }
-        stage ('Push image to Artifactory') {
-            steps {
-                sh 'jf rt docker-push ${ARTIFACTORY_DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION} ${DOCKER_REPOSITORY} --build-name="${BUILD_NAME}" --build-number=${BUILD_ID} --url ${RT_URL} --access-token ${TOKEN}'
-            }
-        }
+//         stage('Package') {
+//             steps {
+//                 dir('complete') {
+//                 //Before creating the docker image, we need to create the .jar file
+//                     sh 'jf mvnc'
+//                    // sh 'jf mvn package target -DskipTests -Dcheckstyle.skip'
+//                     sh "./mvnw package"
+//                     echo 'Create the Docker image'
+//                    // sh "docker build -t build_promotion ."
+//                     script {
+//                         docker.build(ARTIFACTORY_DOCKER_REGISTRY+'/'+IMAGE_NAME+':'+IMAGE_VERSION, '--build-arg JAR_FILE=target/*.jar .')
+//                     }
+//                 }
+//             }
+//         }
+//         stage ('Push image to Artifactory') {
+//             steps {
+//                 sh 'jf rt docker-push ${ARTIFACTORY_DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION} ${DOCKER_REPOSITORY} --build-name="${BUILD_NAME}" --build-number=${BUILD_ID} --url ${RT_URL} --access-token ${TOKEN}'
+//             }
+//         }
         //stage ('Upload artifact') {
            // steps {
                // dir('complete') {
@@ -73,17 +73,17 @@ pipeline {
                // }
           //  }
       //  }
-        stage ('Publish build info') {
-            steps {
-                // Collect environment variables for the build
-                sh 'jf rt bce "${BUILD_NAME}" ${BUILD_ID}'
-                //Collect VCS details from git and add them to the build
-                sh 'jf rt bag "${BUILD_NAME}" ${BUILD_ID}'
-                //Publish build info
-                sh 'jf rt bp "${BUILD_NAME}" ${BUILD_ID} --build-url=${BUILD_URL}'
-                //Promote the build
-                sh 'jf rt bpr --status=Development --props="status=Development" "${BUILD_NAME}" ${BUILD_ID} ${ARTIFACTORY_LOCAL_DEV_REPO}'
-            }
-        }
+//         stage ('Publish build info') {
+//             steps {
+//                 // Collect environment variables for the build
+//                 sh 'jf rt bce "${BUILD_NAME}" ${BUILD_ID}'
+//                 //Collect VCS details from git and add them to the build
+//                 sh 'jf rt bag "${BUILD_NAME}" ${BUILD_ID}'
+//                 //Publish build info
+//                 sh 'jf rt bp "${BUILD_NAME}" ${BUILD_ID} --build-url=${BUILD_URL}'
+//                 //Promote the build
+//                 sh 'jf rt bpr --status=Development --props="status=Development" "${BUILD_NAME}" ${BUILD_ID} ${ARTIFACTORY_LOCAL_DEV_REPO}'
+//             }
+//         }
     }
 }
