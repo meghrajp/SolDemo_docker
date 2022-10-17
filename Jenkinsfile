@@ -41,7 +41,7 @@ pipeline {
                 echo 'Compiling'
                 dir('complete') {
                     //sh 'jf mvnc'
-                    sh 'jf mvn clean test_compile -Dcheckstyle.skip -DskipTests'
+                    sh 'jf mvn clean test-compile -Dcheckstyle.skip -DskipTests'
                 }
             }
         }
