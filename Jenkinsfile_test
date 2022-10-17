@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+    environment {
+        JURL = 'http://artifactory-unified.soleng-us.jfrog.team/'
+        RT_URL = 'http://artifactory-unified.soleng-us.jfrog.team/artifactory'
+        TOKEN = credentials('art_token')
+        ARTIFACTORY_LOCAL_DEV_REPO = 'soldocker-demo-dev'
+        ARTIFACTORY_LOCAL_TEST_REPO = 'soldocker-demo-test'
+        
+        SERVER_ID = 'k8s'
+    }
+    tools {
+        maven "maven-3.6.3"
+    }
+
+    stages {
+        stage ('Config JFrgo CLI') {
+            steps {
+                sh 'jf c add ${SERVER_ID} --interactive=false --overwrite=true --access-token=${TOKEN} --url=${JURL}'
+                sh 'jf config use ${SERVER_ID}'
+            }
+        }
+        stage ('Ping to Artifactory') {
+            steps {
+               sh 'jf rt ping'
+            }
+        }
+        stage ('Scan build') {
+            steps {
+                sh 'JFROG_CLI_LOG_LEVEL=DEBUG jf rt bs --fail=false "${BUILDTOPROMO_NAME}" ${BUILDTOPROMO_ID}'
+            }
+        }
+        stage ('Approve Release for Test') {
+            options {
+                timeout(time: 5, unit: 'MINUTES')
+            }
+            steps {
+                input message: "Are we good to go to Test?"
+            }
+        }
+        stage ('Promote build to test') {
+            steps {
+                //Promote the build
+                sh 'jf rt bpr --source-repo=${ARTIFACTORY_LOCAL_DEV_REPO} --status=Test --props="status=Test" "${BUILDTOPROMO_NAME}" ${BUILDTOPROMO_ID} ${ARTIFACTORY_LOCAL_TEST_REPO}'
+            }
+        }
+    }
+}
