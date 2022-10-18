@@ -10,7 +10,7 @@ pipeline {
         IMAGE_NAME = 'sol_docker_demo'
         IMAGE_VERSION = '1.0.0'
         SERVER_ID = 'k8s'
-        BUILD_NAME = "SolDemo_docker_maven"
+        BUILD_NAME = "SolDemo_docker_maven_new"
     }
     tools {
         maven "maven-3.6.3"
