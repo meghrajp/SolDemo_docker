@@ -3,7 +3,7 @@ pipeline {
     environment {
         JURL = 'http://artifactory-unified.soleng-us.jfrog.team/'
         RT_URL = 'http://artifactory-unified.soleng-us.jfrog.team/artifactory'
-        TOKEN = credentials('ArtifactoryUnified')
+        TOKEN = credentials('art_token')
         ARTIFACTORY_LOCAL_DEV_REPO = 'soldocker-demo-dev'
         ARTIFACTORY_DOCKER_REGISTRY = 'soldocker-demo-dev.artifactory-unified.soleng-us.jfrog.team'
         DOCKER_REPOSITORY = 'soldocker-demo-dev'
@@ -13,8 +13,8 @@ pipeline {
         BUILD_NAME = "SolDemo_docker_maven_new"
     }
     tools {
-       // maven "maven-3.6.3"
-        maven MAVEN_TOOL
+        maven "maven-3.6.3"
+        //maven MAVEN_TOOL
     }
  
     stages {
