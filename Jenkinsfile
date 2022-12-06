@@ -3,7 +3,7 @@ pipeline {
     environment {
         JURL = 'http://artifactory-unified.soleng-us.jfrog.team/'
         RT_URL = 'http://artifactory-unified.soleng-us.jfrog.team/artifactory'
-        TOKEN = credentials('art_token')
+        TOKEN = credentials('ArtifactoryUnified')
         ARTIFACTORY_LOCAL_DEV_REPO = 'soldocker-demo-dev'
         ARTIFACTORY_DOCKER_REGISTRY = 'soldocker-demo-dev.artifactory-unified.soleng-us.jfrog.team'
         DOCKER_REPOSITORY = 'soldocker-demo-dev'
