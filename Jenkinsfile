@@ -33,7 +33,7 @@ pipeline {
         stage ('Config Maven'){
             steps {
                 dir('complete'){
-                    sh 'jf mvnc --repo-resolve-releases=meghraj-docker --repo-resolve-snapshots=meghraj-docker --repo-deploy-releases=meghraj-docker --repo-deploy-snapshots=meghraj-docker'
+                    sh 'jf mvnc --repo-resolve-releases=meghraj-libs-release --repo-resolve-snapshots=meghraj-libs-release --repo-deploy-releases=meghraj-libs-release --repo-deploy-snapshots=meghraj-libs-release'
                 }
             }
         }
