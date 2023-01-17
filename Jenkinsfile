@@ -18,7 +18,7 @@ pipeline {
     }
  
     stages {
-        stage ('Config JFrgo CLI') {
+        stage ('Config JFrog CLI') {
             steps {
                 
                 sh 'jf c add ${SERVER_ID} --interactive=false --overwrite=true --access-token=${TOKEN} --url=${JURL}'
@@ -64,8 +64,8 @@ pipeline {
         
         stage ('Push image to Artifactory') {
             steps {
-                sh "export DOCKER_OPTS+=' --insecure-registry ${ARTIFACTORY_DOCKER_REGISTRY}'"
-                sh "docker login -u meghrajp -p ${TOKEN} ${ARTIFACTORY_DOCKER_REGISTRY}"
+                sh 'export DOCKER_OPTS+=" --insecure-registry ${ARTIFACTORY_DOCKER_REGISTRY}"'
+                sh 'docker login -u meghrajp -p ${TOKEN} ${ARTIFACTORY_DOCKER_REGISTRY}'
               //  sh 'docker push ${ARTIFACTORY_DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION}'
                 sh 'jf rt docker-push ${ARTIFACTORY_DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION} ${DOCKER_REPOSITORY} --build-name="${BUILD_NAME}" --build-number=${BUILD_ID} --url ${RT_URL} --access-token ${TOKEN}'
        
