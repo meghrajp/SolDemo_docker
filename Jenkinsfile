@@ -1,16 +1,16 @@
 pipeline {
     agent any
     environment {
-        JURL = 'http://artifactory-unified.soleng-us.jfrog.team/'
-        RT_URL = 'http://artifactory-unified.soleng-us.jfrog.team/artifactory'
+        JURL = 'https://soleng.jfrog.io/'
+        RT_URL = 'https://soleng.jfrog.io/artifactory'
         TOKEN = credentials('art_token')
-        ARTIFACTORY_LOCAL_DEV_REPO = 'soldocker-demo-dev'
-        ARTIFACTORY_DOCKER_REGISTRY = 'soldocker-demo-dev.artifactory-unified.soleng-us.jfrog.team'
-        DOCKER_REPOSITORY = 'soldocker-demo-dev'
-        IMAGE_NAME = 'sol_docker_demo'
+        ARTIFACTORY_LOCAL_DEV_REPO = 'meghraj-docker-local'
+        ARTIFACTORY_DOCKER_REGISTRY = 'meghraj-docker-local.soleng.jfrog.io'
+        DOCKER_REPOSITORY = 'meghraj-docker-local'
+        IMAGE_NAME = 'meghraj_docker_demo'
         IMAGE_VERSION = '1.0.0'
         SERVER_ID = 'k8s'
-        BUILD_NAME = "SolDemo_docker_maven_new"
+        BUILD_NAME = "meghraj_docker_maven_new"
     }
     tools {
         maven "maven-3.8.6"
@@ -33,7 +33,7 @@ pipeline {
         stage ('Config Maven'){
             steps {
                 dir('complete'){
-                    sh 'jf mvnc --repo-resolve-releases=soldocker-demo-virtual --repo-resolve-snapshots=soldocker-demo-virtual --repo-deploy-releases=soldocker-demo-virtual --repo-deploy-snapshots=soldocker-demo-virtual'
+                    sh 'jf mvnc --repo-resolve-releases=meghraj-docker --repo-resolve-snapshots=meghraj-docker --repo-deploy-releases=meghraj-docker --repo-deploy-snapshots=meghraj-docker'
                 }
             }
         }
@@ -64,8 +64,8 @@ pipeline {
         
         stage ('Push image to Artifactory') {
             steps {
-                sh 'export DOCKER_OPTS+=" --insecure-registry soldocker-demo-dev.artifactory-unified.soleng-us.jfrog.team"'
-                sh 'docker login -u admin -p JFr0g0601 soldocker-demo-dev.artifactory-unified.soleng-us.jfrog.team'
+                sh "export DOCKER_OPTS+=' --insecure-registry ${ARTIFACTORY_DOCKER_REGISTRY}'"
+                sh "docker login -u meghrajp -p ${TOKEN} ${ARTIFACTORY_DOCKER_REGISTRY}"
               //  sh 'docker push ${ARTIFACTORY_DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION}'
                 sh 'jf rt docker-push ${ARTIFACTORY_DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION} ${DOCKER_REPOSITORY} --build-name="${BUILD_NAME}" --build-number=${BUILD_ID} --url ${RT_URL} --access-token ${TOKEN}'
        
