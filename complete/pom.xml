@@ -52,11 +52,11 @@
 	<distributionManagement>
 		<repository>
 			<id>dev</id>
-			<url>http://localhost:8083/artifactory/demo-maven-dev-local</url>
+			<url>https://soleng.jfrog.io/artifactory/meghraj-dev</url>
 		</repository>
 		<snapshotRepository>
 			<id>dev</id>
-			<url>http://localhost:8083/artifactory/demo-maven-dev-local</url>
+			<url>https://soleng.jfrog.io/artifactory/meghraj-dev</url>
 		</snapshotRepository>
 	</distributionManagement>
 
